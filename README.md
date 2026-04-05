@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+      background: black;
+    }
+
+    /* =======================
+       HOME SCREEN (BERANDA)
+    ======================= */
+    #homeScreen {
+      height: 100vh;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+    }
+
+    /* LASER ANIMATION */
+    .laser {
+      position: absolute;
+      width: 200%;
+      height: 6px;
+      background: linear-gradient(to right, transparent, red, transparent);
+      box-shadow: 0 0 25px red, 0 0 40px crimson;
+      transform: rotate(35deg);
+      animation: laserMove 2.5s linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes laserMove {
+      0% { top: -20%; }
+      100% { top: 120%; }
+    }
+
+    /* teks rainbow by ikyy */
+    .creditText {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+      z-index: 5;
+
+      background: linear-gradient(
+        90deg,
+        #ff0000,
+        #ff7a00,
+        #ffd500,
+        #00ff00,
+        #00c3ff,
+        #6a00ff,
+        #ff00d4,
+        #ff0000
+      );
+
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      animation: rainbowMove 2.5s linear infinite;
+      text-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    @keyframes rainbowMove {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    #homeScreen h1 {
+      font-size: 42px;
+      margin: 0;
+      text-shadow: 0 0 15px rgba(0,0,0,0.7);
+      z-index: 5;
+    }
+
+    #homeScreen p {
+      margin-top: 8px;
+      font-size: 16px;
+      opacity: 0.9;
+      z-index: 5;
+    }
+
+    /* Home buttons */
+    .homeButtons {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .btnMode {
+      width: 250px;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .btnMode:hover {
+      transform: scale(1.05);
+    }
+
+    /* warna sesuai request */
+    .btnCpu {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btnPvp {
+      background: linear-gradient(to right, #111827, #7f1d1d);
+      color: white;
+    }
+
+    .btnAbout {
+      background: #2563eb;
+      color: white;
+    }
+
+    /* =======================
+       ABOUT SCREEN
+    ======================= */
+    #aboutScreen {
+      display: none;
+      height: 100vh;
+      width: 100%;
+      background: black;
+      color: white;
+      text-align: center;
+      padding: 25px;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #aboutScreen h2 {
+      font-size: 35px;
+      margin-bottom: 10px;
+      z-index: 5;
+      position: relative;
+    }
+
+    .aboutBox {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 20px rgba(255,0,0,0.3);
+      z-index: 5;
+      position: relative;
+      font-size: 18px;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .btnBackHome {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      background: #f59e0b;
+      color: black;
+      z-index: 5;
+      position: relative;
+    }
+
+    .btnBackHome:hover {
+      background: #d97706;
+    }
+
+    /* =======================
+       GAME SCREEN
+    ======================= */
+    #gameScreen {
+      display: none;
+      height: 100vh;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    #gameScreen h2 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    #modeText {
+      margin-top: 6px;
+      font-size: 15px;
+      opacity: 0.85;
+    }
+
+    .scoreBox {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #111827;
+      font-size: 16px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #0f766e;
+      font-size: 16px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 25px auto;
+      max-width: 360px;
+    }
+
+    .cell {
+      width: 110px;
+      height: 110px;
+      background: #334155;
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s;
+    }
+
+    .cell:hover {
+      background: #475569;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    select, button {
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button {
+      background: #22c55e;
+      color: white;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    .btnBack {
+      background: #f59e0b;
+      color: black;
+    }
+
+    .btnBack:hover {
+      background: #d97706;
+    }
+
+    /* =======================
+       WINNER ANIME OVERLAY
+    ======================= */
+    #winnerOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      color: white;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .winnerText {
+      font-size: 50px;
+      font-weight: 900;
+      color: #facc15;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+      margin-bottom: 10px;
+      animation: glow 1s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { transform: scale(1); }
+      to { transform: scale(1.07); }
+    }
+
+    /* anime character CSS art */
+    .animeGuy {
+      width: 180px;
+      height: 250px;
+      position: relative;
+      margin-top: 20px;
+      animation: animeJump 1.2s infinite ease-in-out;
+    }
+
+    @keyframes animeJump {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+      100% { transform: translateY(0); }
+    }
+
+    .head {
+      width: 90px;
+      height: 90px;
+      background: #f1c27d;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 45px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .hair {
+      width: 95px;
+      height: 50px;
+      background: #111827;
+      border-radius: 50px 50px 30px 30px;
+      position: absolute;
+      top: -5px;
+      left: -2px;
+    }
+
+    .eye {
+      width: 10px;
+      height: 10px;
+      background: black;
+      border-radius: 50%;
+      position: absolute;
+      top: 40px;
+    }
+
+    .eye.left { left: 25px; }
+    .eye.right { right: 25px; }
+
+    .body {
+      width: 120px;
+      height: 140px;
+      background: #7f1d1d;
+      border-radius: 20px;
+      position: absolute;
+      top: 90px;
+      left: 30px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.6);
+    }
+
+    .belt {
+      width: 120px;
+      height: 15px;
+      background: black;
+      position: absolute;
+      bottom: 35px;
+      left: 0;
+      opacity: 0.8;
+    }
+
+    /* sword */
+    .sword {
+      width: 20px;
+      height: 190px;
+      background: silver;
+      position: absolute;
+      top: 30px;
+      left: 140px;
+      border-radius: 10px;
+      transform: rotate(25deg);
+      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+    }
+
+    .sword::after {
+      content: "";
+      position: absolute;
+      bottom: -18px;
+      left: -12px;
+      width: 45px;
+      height: 18px;
+      background: gold;
+      border-radius: 8px;
+    }
+
+    .winnerMenu {
+      margin-top: 25px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .winnerMenu button {
+      padding: 14px 18px;
+      font-size: 16px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+    }
+
+    .btnContinue {
+      background: #22c55e;
+      color: white;
+    }
+
+    .btnHome {
+      background: #dc2626;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HOME SCREEN -->
+  <div id="homeScreen">
+    <div class="laser"></div>
+
+    <div class="creditText">by Ikyy</div>
+    <h1>Tic Tac Toe</h1>
+    <p>Pilih mode permainan</p>
+
+    <div class="homeButtons">
+      <button class="btnMode btnCpu" onclick="goToGame('cpu')">Komputer</button>
+      <button class="btnMode btnPvp" onclick="goToGame('pvp')">1 vs 1</button>
+      <button class="btnMode btnAbout" onclick="goToAbout()">About</button>
+    </div>
+  </div>
+
+  <!-- ABOUT SCREEN -->
+  <div id="aboutScreen">
+    <div class="laser"></div>
+
+    <h2>About</h2>
+
+    <div class="aboutBox">
+Hello bro
+
+Pembuat: m.rizki
+Class: 7d
+Cita cita: gtw
+
+Intinya ini buatan gw titik.
+    </div>
+
+    <button class="btnBackHome" onclick="backFromAbout()">Balik Beranda</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen">
+    <h2>Tic Tac Toe</h2>
+    <div id="modeText">Mode: -</div>
+
+    <div class="controls" id="difficultyBox">
+      <select id="difficultySelect">
+        <option value="easy">Sangat Gampang</option>
+        <option value="medium">Mayan</option>
+        <option value="hard">Sulit</option>
+        <option value="impossible">Mustahil</option>
+      </select>
+    </div>
+
+    <div class="scoreBox">
+      <div>Skor Kamu (X): <span id="playerScore">0</span></div>
+      <div>Skor Lawan (O): <span id="enemyScore">0</span></div>
+    </div>
+
+    <div class="status" id="statusText">Game siap dimainkan.</div>
+
+    <div class="board" id="board"></div>
+
+    <div class="controls">
+      <button onclick="resetBoard()">Reset Board</button>
+      <button onclick="resetScore()">Reset Skor</button>
+      <button class="btnBack" onclick="backToHome()">Beranda</button>
+    </div>
+  </div>
+
+  <!-- WINNER OVERLAY -->
+  <div id="winnerOverlay">
+    <div class="winnerText">WINNER</div>
+
+    <div class="animeGuy">
+      <div class="head">
+        <div class="hair"></div>
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+      </div>
+      <div class="body">
+        <div class="belt"></div>
+      </div>
+      <div class="sword"></div>
+    </div>
+
+    <div class="winnerMenu">
+      <button class="btnContinue" onclick="continueGame()">Lanjut Main</button>
+      <button class="btnHome" onclick="backToHomeFromWinner()">Balik Beranda</button>
+    </div>
+  </div>
+
+<script>
+  let board = ["", "", "", "", "", "", "", "", ""];
+  let currentPlayer = "X";
+  let gameActive = false;
+
+  let playerScore = 0;
+  let enemyScore = 0;
+
+  let mode = "pvp";
+  let difficulty = "easy";
+
+  const statusText = document.getElementById("statusText");
+  const boardDiv = document.getElementById("board");
+  const modeText = document.getElementById("modeText");
+
+  const homeScreen = document.getElementById("homeScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const aboutScreen = document.getElementById("aboutScreen");
+  const winnerOverlay = document.getElementById("winnerOverlay");
+
+  function createBoard() {
+    boardDiv.innerHTML = "";
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.dataset.index = i;
+      cell.innerText = board[i];
+      cell.addEventListener("click", handleCellClick);
+      boardDiv.appendChild(cell);
+    }
+  }
+
+  function goToGame(selectedMode) {
+    mode = selectedMode;
+
+    homeScreen.style.display = "none";
+    aboutScreen.style.display = "none";
+    gameScreen.style.display = "block";
+
+    resetBoard();
+    gameActive = true;
+
+    if (mode === "cpu") {
+      document.getElementById("difficultyBox").style.display = "block";
+      modeText.innerText = "Mode: Lawan Komputer";
+      statusText.innerText = "Kamu X, komputer O.";
+    } else {
+      document.getElementById("difficultyBox").style.display = "none";
+      modeText.innerText = "Mode: 1 vs 1";
+      statusText.innerText = "Giliran Player X.";
+    }
+  }
+
+  function goToAbout() {
+    homeScreen.style.display = "none";
+    gameScreen.style.display = "none";
+    aboutScreen.style.display = "block";
+  }
+
+  function backFromAbout() {
+    aboutScreen.style.display = "none";
+    homeScreen.style.display = "flex";
+  }
+
+  function backToHome() {
+    gameActive = false;
+    homeScreen.style.display = "flex";
+    gameScreen.style.display = "none";
+  }
+
+  function handleCellClick(e) {
+    const index = e.target.dataset.index;
+    if (!gameActive || board[index] !== "") return;
+
+    board[index] = currentPlayer;
+    createBoard();
+
+    if (checkWinner()) {
+      gameActive = false;
+      return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    if (mode === "pvp") {
+      statusText.innerText = "Giliran Player " + currentPlayer;
+    } else {
+      if (currentPlayer === "O") {
+        statusText.innerText = "Komputer berpikir...";
+        setTimeout(cpuMove, 500);
+      } else {
+        statusText.innerText = "Giliran kamu (X)";
+      }
+    }
+  }
+
+  function cpuMove() {
+    if (!gameActive) return;
+
+    difficulty = document.getElementById("difficultySelect").value;
+
+    let move;
+    if (difficulty === "easy") move = randomMove();
+    else if (difficulty === "medium") move = (Math.random() < 0.5) ? randomMove() : bestMove();
+    else if (difficulty === "hard") move = (Math.random() < 0.2) ? randomMove() : bestMove();
+    else if (difficulty === "impossible") move = bestMove();
+
+    if (move !== null) {
+      board[move] = "O";
+      createBoard();
+
+      if (checkWinner()) {
+        gameActive = false;
+        return;
+      }
+
+      currentPlayer = "X";
+      statusText.innerText = "Giliran kamu (X)";
+    }
+  }
+
+  function randomMove() {
+    let empty = [];
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === "") empty.push(i);
+    }
+    if (empty.length === 0) return null;
+    return empty[Math.floor(Math.random() * empty.length)];
+  }
+
+  function checkWinner() {
+    const winPatterns = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    for (let pattern of winPatterns) {
+      const [a,b,c] = pattern;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+
+        if (board[a] === "X") {
+          playerScore++;
+          statusText.innerText = "Kamu menang! Skor +1";
+
+          if (playerScore >= 5) {
+            setTimeout(() => {
+              showWinnerAnime();
+            }, 700);
+          }
+
+        } else {
+          playerScore--;
+          enemyScore++;
+          statusText.innerText = "Kamu kalah! Skor -1";
+        }
+
+        updateScore();
+        return true;
+      }
+    }
+
+    if (!board.includes("")) {
+      statusText.innerText = "Hasil seri 🤝";
+      return true;
+    }
+
+    return false;
+  }
+
+  function updateScore() {
+    document.getElementById("playerScore").innerText = playerScore;
+    document.getElementById("enemyScore").innerText = enemyScore;
+  }
+
+  function resetBoard() {
+    board = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    gameActive = true;
+    createBoard();
+
+    if (mode === "pvp") {
+      statusText.innerText = "Board direset! Giliran X";
+    } else {
+      statusText.innerText = "Board direset! Kamu mulai (X)";
+    }
+  }
+
+  function resetScore() {
+    playerScore = 0;
+    enemyScore = 0;
+    updateScore();
+    statusText.innerText = "Skor direset ke 0!";
+  }
+
+  function showWinnerAnime() {
+    winnerOverlay.style.display = "flex";
+
+    // reset skor otomatis
+    playerScore = 0;
+    enemyScore = 0;
+    updateScore();
+  }
+
+  function continueGame() {
+    winnerOverlay.style.display = "none";
+    resetBoard();
+  }
+
+  function backToHomeFromWinner() {
+    winnerOverlay.style.display = "none";
+    backToHome();
+  }
+
+  /* ===== MINIMAX AI ===== */
+  function bestMove() {
+    let bestScore = -Infinity;
+    let move = null;
+
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === "") {
+        board[i] = "O";
+        let score = minimax(board, 0, false);
+        board[i] = "";
+
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
+      }
+    }
+    return move;
+  }
+
+  function minimax(newBoard, depth, isMaximizing) {
+    let result = checkWinnerForAI();
+    if (result !== null) return result;
+
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (newBoard[i] === "") {
+          newBoard[i] = "O";
+          let score = minimax(newBoard, depth + 1, false);
+          newBoard[i] = "";
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (newBoard[i] === "") {
+          newBoard[i] = "X";
+          let score = minimax(newBoard, depth + 1, true);
+          newBoard[i] = "";
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
+  }
+
+  function checkWinnerForAI() {
+    const winPatterns = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,4,7],
+      [0,4,8],[2,4,6]
+    ];
+
+    for (let pattern of winPatterns) {
+      const [a,b,c] = pattern;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        if (board[a] === "O") return 1;
+        if (board[a] === "X") return -1;
+      }
+    }
+
+    if (!board.includes("")) return 0;
+    return null;
+  }
+
+  createBoard();
+</script>
+
+<script>
+  let board = ["", "", "", "", "", "", "", "", ""];
+  let currentPlayer = "X";
+  let gameActive = false;
+
+  let playerScore = 0;
+  let enemyScore = 0;
+
+  let totalMatch = 0;
+  let totalWin = 0;
+  let totalLose = 0;
+
+  let mode = "pvp";
+  let difficulty = "easy";
+
+  const statusText = document.getElementById("statusText");
+  const boardDiv = document.getElementById("board");
+  const modeText = document.getElementById("modeText");
+
+  const homeScreen = document.getElementById("homeScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const aboutScreen = document.getElementById("aboutScreen");
+  const statScreen = document.getElementById("statScreen");
+  const winnerOverlay = document.getElementById("winnerOverlay");
+
+  function createBoard() {
+    boardDiv.innerHTML = "";
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.dataset.index = i;
+      cell.innerText = board[i];
+      cell.addEventListener("click", handleCellClick);
+      boardDiv.appendChild(cell);
+    }
+  }
+
+  function goToGame(selectedMode) {
+    mode = selectedMode;
+
+    homeScreen.style.display = "none";
+    aboutScreen.style.display = "none";
+    statScreen.style.display = "none";
+    gameScreen.style.display = "block";
+
+    resetBoard();
+    gameActive = true;
+
+    if (mode === "cpu") {
+      document.getElementById("difficultyBox").style.display = "block";
+      modeText.innerText = "Mode: Lawan Komputer";
+      statusText.innerText = "Kamu X, komputer O.";
+    } else {
+      document.getElementById("difficultyBox").style.display = "none";
+      modeText.innerText = "Mode: 1 vs 1";
+      statusText.innerText =
